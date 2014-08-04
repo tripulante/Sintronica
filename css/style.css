@@ -1,0 +1,14 @@
+.keys .content { 
+	padding: 20px;
+}
+
+.keys .pane {
+	background: #555;
+	width: 8px;
+	right: 1px;
+  margin: 5px;
+}
+
+.keys .slider {
+	background: #111;
+}

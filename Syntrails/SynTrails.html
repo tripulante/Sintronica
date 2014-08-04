@@ -1,0 +1,740 @@
+<!doctype html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		
+		<!--link href="./css/MIDIPlayer.css" rel="stylesheet" type="text/css" /--!>
+		
+		<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+		<link href='../css/nanoscroller.css' rel='stylesheet' type="text/css" />
+		<link href='../css/main.css' rel='stylesheet' type="text/css" />
+		
+			<!-- midi.js package -->
+		<script src="../js/Color/SpaceW3.js" type="text/javascript"></script>
+		<script src="../js/MIDI/AudioDetect.js" type="text/javascript"></script>
+		<script src="../js/MIDI/LoadPlugin.js" type="text/javascript"></script>
+		<script src="../js/MIDI/Plugin.js" type="text/javascript"></script>
+		<script src="../js/MIDI/Player.js" type="text/javascript"></script>
+		<script src="../js/MusicTheory/Synesthesia.js" type="text/javascript"></script>
+		<script src="../js/Widgets/Loader.js" type="text/javascript"></script>
+		<script src="../js/Window/Event.js" type="text/javascript"></script>
+		<script src="../js/Window/DOMLoader.XMLHttp.js" type="text/javascript"></script>
+		<script src="../js/Window/DOMLoader.script.js" type="text/javascript"></script>
+		
+		
+
+		<!-- jasmid package -->
+		<script src="../inc/jasmid/stream.js"></script>
+		<script src="../inc/jasmid/midifile.js"></script>
+		<script src="../inc/jasmid/replayer.js"></script>
+		<!-- extras -->
+		<script src="../inc/Base64.js" type="text/javascript"></script>
+		<script src="../inc/base64binary.js" type="text/javascript"></script>
+		<!-- jquery -->
+		<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+		<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+		<script src="../js/jquery.nanoscroller.min.js"></script>
+		<!--Three.js-->
+		<script src="../js/Three.js"></script>
+		<script src="../js/libs/tween.min.js"></script>
+		<script src="../js/Sparks.js"></script>
+		<script src="../js/tinycolor-min.js"></script>
+		
+		<script src="fonts/helvetiker_regular.typeface.js"></script>
+		<script src="fonts/metdemo_regular.typeface.js"></script>
+		
+		<script src="js/Playlist.js"></script>
+		<script src="js/Options.js"></script>
+		
+		
+		<title>Synesthetic Spark Emitter</title>
+	</head>
+	<body>
+		<div id="test">
+			<div id="container"></div>
+			<div id="options">
+				<div id="player">
+					<input type='image' alt='previous' src='../images/backward_1.png' id='previousSong'/>
+					<input type='image' alt='play' src='../images/pause_1.png' id='playerControl'/>
+					<input type='image' alt='stop' src='../images/stop_1.png' id='playerStop'/>
+					<input type='image' alt='next' src='../images/forward_1.png' id='nextSong'/>
+					
+					<div id='progressbar-container'>
+						<span id="elapsed">00:00</span>
+						<div id='progressbar'></div>
+						<span id='songLength'>00:00</span>
+					</div>
+					<div id='songName'></div>
+					
+					<ul class="keys nano">
+						<div class='content'>
+							<ul id='playlist'></ul>
+						</div>
+					</ul>
+					
+				</div>
+				<div id="sphereoptions">
+					<h2>Some Options</h2>
+					<p>Synesthetic Map</p>
+					<select id="maps"></select>
+					<table id='colorKeys'>
+						<tr>
+							<td>C</td>
+							<td>C#/Db</td>
+							<td>D</td>
+							<td>Eb</td>
+							<td>E</td>
+							<td>F</td>
+						</tr>
+						<tr>
+							<td>F#</td>
+							<td>G</td>
+							<td>G#/Ab</td>
+							<td>A</td>
+							<td>Bb</td>
+							<td>B</td>
+						</tr>
+					</table>
+					
+					<form>
+						<ul>
+							<li>
+								<input type='checkbox' id='animaterotation' checked='checked'/>
+									<label for='animaterotation'>Animate Rotation?</label>
+							</li>
+							<li>
+								<input type='checkbox' id='followmouse' checked='checked'/>
+									<label for='followmouse'>Follow Mouse?</label>
+							</li>
+							
+							
+						</ul>
+					</form>
+					
+					<p>Rotate System</p>
+					<p>X:</p>
+					<div id="sliderX"></div>
+					<p>Y:</p>
+					<div id="sliderY"></div>
+					<button id='reset'>Reset</button>
+					
+				</div>
+				
+			</div>
+			<div id="credits">
+				<h2>Synesthetic Spark Emitter</h2>
+				<p>A synesthetic emitter using 
+					<a href="http://threejs.org" target="_blank">Three.js</a> and <a href="http://mudcu.be/midi-js" target="_blank">Midi.js</a> 
+					(and a little bit of <a href="http://www.createjs.com/#!/TweenJS">TweenJS</a>)</p>
+				<p>Created by <a>John Palma</a>.</p>
+				<p>Drag and drop your midi files if you want.</p>
+				
+				<a href="#" 
+				  onclick="
+					window.open(
+					  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href), 
+					  'facebook-share-dialog', 
+					  'width=626,height=436'); 
+					return false;">
+				  <img src="../images/fb.gif" alt="Share on Facebook" height="20" width="20">
+				</a>
+				<div class="fb-like" data-href="http://www.google.com" data-width="450" data-layout="button_count" data-show-faces="false" data-send="true"></div>
+				<a href="https://twitter.com/share" class="twitter-share-button" data-count="none">Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+			</div>
+			
+			
+		</div>
+
+	</body>
+	
+	<script type="x-shader/x-vertex" id="vertexshader">
+
+				attribute float size;
+				attribute vec3 pcolor;
+
+				varying vec3 vColor;
+
+				void main() {
+
+					vColor = pcolor;
+
+					vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+					gl_PointSize = size * ( 200.0 / length( mvPosition.xyz ) );
+
+					gl_Position = projectionMatrix * mvPosition;
+
+				}
+
+			</script>
+
+			<script type="x-shader/x-fragment" id="fragmentshader">
+				uniform vec3 color;
+				uniform sampler2D texture;
+
+				varying vec3 vColor;
+		
+				void main() {
+					float depth = gl_FragCoord.z / gl_FragCoord.w;
+					
+					// if ( outColor.a < 0.5 ) discard;
+					
+					vec4 outColor = texture2D( texture, gl_PointCoord );
+					
+					// float fogFactor = smoothstep( 200.0, 600.0, depth );
+					// vec3 fogColor = vec3(0.0);
+					gl_FragColor = outColor*vec4(vColor, 1.0 );
+					
+					// gl_FragColor = mix(gl_FragColor, vec4(fogColor, gl_FragColor.w), fogFactor);
+				}
+
+			</script>
+	
+
+	<script type="text/javascript" defer>
+	//three.js variables
+	var sphere;
+	var material, material2, pMaterial, materials = [];
+	var colorArray = [];
+	var colorState = 0;
+	var synApplied = false;
+	var segmentsToDraw = [];
+	var key;
+	var camera, scene, renderer;
+	var map;
+	var faces, geometry;
+	var radius = 100, segments = 12, rings = 12;
+	var baseColor = new THREE.Color(parseColor('#111111'));
+	var particlesPerNote = 10000;
+	var particleSystem, systems = [];
+	var spacing = 500, separation = 250, cameraZ = 1000;
+	var maxNoteSize = 200, minNoteSize = 100;
+	var velX = 10, velY = 10;
+	var notes = 12;
+	var shift = 20;
+	var geometries = [];
+	var mouseX, mouseY;
+	var sprite;
+	//sparks.js variables
+	var counter, emitter, emitterpos;
+	
+	var hue = 0, sat = 0, light = 0.1;
+	//midi variables
+	var player;
+	
+	var currentTrackIndex = 81;
+	var playlist;
+	
+	var currentSong = 0;
+	var WIDTH = 500,
+		HEIGHT = 500;
+
+	// set some camera attributes
+	var VIEW_ANGLE = 45,
+		ASPECT = window.innerWidth / window.innerHeight,
+		NEAR = 0.1,
+		FAR = 10000;
+	//rotation
+	var rotateX = 0, rotateY = 0;
+	var animateRotation = true;
+	var drawRings = true;
+	
+	
+	var ringFaces = [], segmentFaces = [];
+	//jquery variables
+	var $options = $('#options');
+	var $maps = $('#maps');
+	var $wireframe = $('#wireframe');
+	var $prevLi;
+	
+	
+	var particle;
+	var group;
+	var verts = [];
+	
+	var size = minNoteSize;
+	//shader variables
+	var attributes, uniforms;
+	//shape variables
+	var followMouse = true;
+	var clefshape;
+	var posInShape = 0;
+	var shapeSpeed = 5, shapeClock = new THREE.Clock();
+	var delta = 1;
+	
+	
+	
+	function initMidi(){
+		MIDI.loader = new widgets.Loader;
+		MIDI.loadPlugin(function () {
+			
+			player = MIDI.Player;
+			player.timeWarp = 1; 
+			
+			currentTrackIndex = Math.floor(Math.random()*playlist.length);
+			
+			loadMidiFromPlaylist(currentTrackIndex);
+			
+			player.setAnimation(function(data, element){
+				$('#elapsed').text(formatClock(data.now));
+				$('#progressbar').slider('value', (data.now/data.end)*100);
+			});
+			
+			player.addListener(function(data) {
+				
+				var pianoKey = data.note - MIDI.pianoKeyOffset;
+				if (data.message === 144) {
+						var d = colorArray[pianoKey%notes];
+						
+						hue = d.getHSL().h;
+						sat = d.getHSL().s;
+						// light = d.getHSL().l;
+						size = maxNoteSize;
+				} else {
+					size = minNoteSize;
+				}
+				
+			});
+			
+			player.getNextSong = function(n){
+				loadMidiFromPlaylist(currentTrackIndex + n);
+			};
+			
+			MIDI.loader.stop();
+			$('#playlist').click(playlistClick);
+			$('#progressbar').slider('option', 'disabled', false);
+			$('#previousSong').click(function(){player.getNextSong(-1)});
+			$('#nextSong').click(function(){player.getNextSong(1)});
+			$('#playerControl').click(function(){playerPauseStop()});
+			$('#playerStop').click(function(){playerPauseStop(true)});
+			
+		});
+		
+	}
+	
+	function generateSprite(){
+			var canvas = document.createElement( 'canvas' );
+					canvas.width = 128;
+					canvas.height = 128;
+
+					var context = canvas.getContext( '2d' );
+					context.beginPath();
+					context.arc( 64, 64, 60, 0, Math.PI * 2, false) ;
+					context.closePath();
+
+					context.lineWidth = 0.5; //0.05
+					context.stroke();
+					
+					var gradient = context.createRadialGradient( canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2 );
+
+					gradient.addColorStop( 0, 'rgba(255,255,255,1)' );
+					gradient.addColorStop( 0.2, 'rgba(255,255,255,1)' );
+					gradient.addColorStop( 0.4, 'rgba(200,200,200,1)' );
+					gradient.addColorStop( 1, 'rgba(0,0,0,1)' );
+
+					context.fillStyle = gradient;
+					context.fill();
+
+					return canvas;
+		};
+	
+	function createShaderMaterial(){
+		
+		
+		sprite = generateSprite();
+		var tex = new THREE.Texture(sprite);
+		tex.needsUpdate= true;
+		
+		attributes = {
+			size: {type: 'f', value: []},
+			pcolor: {type: 'c', value: []}
+		};
+		
+		uniforms = {
+			
+			texture: {type: 't', value: tex}
+		};
+		
+		var shaderMaterial = new THREE.ShaderMaterial({
+			uniforms: uniforms,
+			attributes: attributes,
+			
+			vertexShader: $('#vertexshader').text(),
+			fragmentShader: $('#fragmentshader').text(),
+			
+			blending: THREE.AdditiveBlending,
+			
+			depthWrite: false,
+			transparent: true
+			
+		});
+		
+		return shaderMaterial;
+	}
+	
+	function initEmitter(){
+		
+		group = new THREE.Geometry();
+		
+		var Pools = function(){
+			this.__pools = [];
+		};
+		
+		Pools.prototype.get = function(){
+			var pools = this.__pools;
+			if(pools.length > 0)
+				return pools.pop();
+		};
+		
+		Pools.prototype.add = function(v){
+			this.__pools.push(v);
+		};
+		
+		var vectorPool = new Pools();
+		
+		for (var i = 0; i < particlesPerNote; i++ ) {
+			group.vertices.push(new THREE.Vector3(Math.random() *200 - 100, Math.random() *100+150, Math.random() *50));
+			vectorPool.add(i);
+		}
+		
+		//shader material
+		
+		material = createShaderMaterial();
+		verts = group.vertices;
+		var values_size = attributes.size.value;
+		var values_color = attributes.pcolor.value;
+		
+		particleSystem = new THREE.ParticleSystem(group, material);
+		particleSystem.dynamic = true;
+		
+		for(var i = 0; i < verts.length; i++){
+			values_color[i] = new THREE.Color(0x000000);
+			values_color[i].setHSL(0,0,0);
+			values_size[i] = Math.random()*maxNoteSize;
+			verts[i].set(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+		}
+		
+		hue = baseColor.getHSL().h;
+		
+		scene.add(particleSystem);
+		console.log(values_color.length);
+		
+		//emitter
+		var onParticleCreated = function(p){
+			
+			var position = p.position;
+			p.target.position = position;
+			
+			var target = p.target;
+			if(target){
+				
+				
+				verts[target] = p.position;
+				values_color[target].setHSL(hue, sat, light);
+				
+				if(!followMouse){
+				
+					posInShape += 0.002*delta;
+					if(posInShape > 1)
+						posInShape -= 1;
+					
+					var point = clefshape.getPointAt(posInShape);
+					
+					emitterpos.x = point.x*5-200;
+					emitterpos.y = point.y*5-200;
+					
+					console.log(point);
+				}
+			}
+			
+		};
+		
+		var onParticleDead = function(particle){
+			var target = particle.target;
+			if(target){
+				values_color[target].setHSL(0, 0, 0);
+				verts[target].set(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY );
+				vectorPool.add(target);
+			}
+		};
+		
+		var setTargetParticle = function(){
+			var target = vectorPool.get();
+			values_size[target] = Math.random()*200 + 100;
+			return target;
+		}
+		
+		counter = new SPARKS.SteadyCounter(500);
+		emitter = new SPARKS.Emitter(counter);
+		
+		emitterpos = new THREE.Vector3(0,0,0);
+		
+		emitter.addInitializer(new SPARKS.Position(new SPARKS.PointZone(emitterpos)));
+		emitter.addInitializer(new SPARKS.Lifetime(0,8));
+		var vector = new THREE.Vector3( 0, -5, 1 );
+		var sphereCap = new SPARKS.SphereCapZone(0, 0, 0, 10, 0, 40);
+		// emitter.addInitializer( new SPARKS.Velocity( new SPARKS.PointZone( vector ) ) );
+		emitter.addInitializer( new SPARKS.Velocity(  sphereCap  ) );
+		emitter.addInitializer(new SPARKS.Target(null, setTargetParticle));
+		
+		emitter.addAction(new SPARKS.Age());
+		// emitter.addAction(new SPARKS.Accelerate(0.2));
+		emitter.addAction(new SPARKS.Move());
+		emitter.addAction(new SPARKS.RandomDrift(90, 100, 2000));
+		
+		//callbacks
+		emitter.addCallback('created', onParticleCreated);
+		emitter.addCallback("dead", onParticleDead);
+		
+		emitter.start();
+		
+		// var renderScene = new THREE.RenderScene();
+	}
+	
+	function initTrails(){
+		// create a WebGL renderer, camera
+		// and a scene
+		renderer = new THREE.WebGLRenderer( );
+		renderer.setClearColor( 0x000000, 1 );
+		// renderer.sortObjects = false;
+		// renderer.autoClearColor = false;
+		camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
+										ASPECT,
+										NEAR,
+										FAR  );
+		scene = new THREE.Scene();
+		scene.fog = new THREE.FogExp2(0x000000, 0.001);
+		// get the DOM element to attach to
+		// - assume we've got jQuery to hand
+		var $container = $('#container');
+		
+		// the camera starts at 0,0,0 so pull it back
+		camera.position.z = cameraZ;
+
+		// start the renderer
+		renderer.setSize(window.innerWidth, window.innerHeight);
+
+		// attach the render-supplied DOM element
+		$container.append(renderer.domElement);
+		
+		// sprite = THREE.ImageUtils.loadTexture('textures/disc.png');
+		
+		// and the camera
+		scene.add(camera);
+
+		// create a point light
+		var pointLight = new THREE.PointLight( 0xFFFFFF );
+
+		// set its position
+		pointLight.position.x = 10;
+		pointLight.position.y = 50;
+		pointLight.position.z = 130;
+
+		// add to the scene
+		scene.add(pointLight);
+		
+		initEmitter();
+	}
+	
+	function createShape(){
+		var p = new THREE.Object3D();
+		
+		var x = 0, y = 0;
+		
+		var shape = new THREE.Shape();
+		shape.moveTo(x, y);
+		shape.bezierCurveTo( x-25, y+100, x+100, y+100, x+150, y );
+		shape.bezierCurveTo( x+150, y-300, x-20, y-300, x-20, y-300);
+		
+		var text = '$';
+		
+		var height = 20,
+				size = 70,
+				hover = 30,
+
+				curveSegments = 4,
+
+				bevelThickness = 2,
+				bevelSize = 1.5,
+				bevelSegments = 3,
+				bevelEnabled = true,
+
+				font = "metdemo", // helvetiker, optimer, gentilis, droid sans, droid serif
+				weight = "normal", // normal bold
+				style = "normal"; // normal italic
+		
+		var points = [];
+		
+		points.push(new THREE.Vector2(0,0));
+		points.push(new THREE.Vector2(-20, 100));
+		points.push(new THREE.Vector2(0, 100));
+		points.push(new THREE.Vector2(150, 0));
+		points.push(new THREE.Vector2(0, -300));
+		
+		var shape2 = new THREE.Shape(points);
+		
+		var textgeom = new THREE.TextGeometry(text,  {
+
+					// size: size,
+					// height: height,
+					// curveSegments: curveSegments,
+
+					font: font,
+					// weight: 'bold',
+					// style: style,
+
+					bevelThickness: bevelThickness,
+					bevelSize: bevelSize,
+					bevelEnabled: false
+
+				});
+		
+		var geom = new THREE.ShapeGeometry(shape);
+		
+		var mesh = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({
+			color: 0xffffff,
+			transparent: true
+		}));
+		
+		// mesh.rotation.x -= 1;
+		
+		var linegeom = new THREE.Geometry();
+		linegeom.vertices = points;
+		
+		var textlines = new THREE.Line(textgeom, new THREE.LineBasicMaterial({color: 0xffffff}));
+		
+		clefshape = new THREE.Shape(textgeom.vertices);
+		
+		
+		var line = new THREE.Line(linegeom, new THREE.LineBasicMaterial({color: 0xffffff}));
+		line.position.set(x+200, y, 0);
+		// p.add(line);
+		// p.add(mesh);
+		p.add(textlines);
+		
+		// scene.add(p);
+		
+		console.log(clefshape.getPointAt(0));
+	}
+	
+	function init(){
+		// set the scene size
+		
+
+		initOptions();
+		
+		initTrails();
+		
+		//initialize color map
+		createColorMap();
+		
+		createShape();
+		
+		//events
+		document.addEventListener('click', onClick, false);
+		window.addEventListener('resize', onWindowResize, false);
+		window.addEventListener("dragenter", dragEnter, false);
+		window.addEventListener("dragexit", dragExit, false);
+		window.addEventListener("dragover", dragOver, false);
+		window.addEventListener("drop", drop, false);
+		//midi init
+		initMidi();
+	}
+	
+	function onWindowResize(){
+		// windowHalfX = window.innerWidth / 2;
+		// windowHalfY = window.innerHeight / 2;
+
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+
+		renderer.setSize( window.innerWidth, window.innerHeight );
+	}
+	
+	function createColorMap(mapName){
+	
+		colorArray.length = 0;
+		
+		var colorMap = typeof mapName !== 'undefined' ? MusicTheory.Synesthesia.map(mapName) : MusicTheory.Synesthesia.map();
+		
+		
+		for(var i = 0; i < 12; i++){
+			// var note = MIDI.noteToKey[i+21];
+			map = colorMap[i+21];
+			if(map){
+				color = new THREE.Color(parseColor(map.hex));
+				synApplied = true;
+			}
+			else{
+				color = new THREE.Color( 0xffffff );	
+				color.setRGB( Math.random(), Math.random(), Math.random());
+			}
+			
+			colorArray.push(color);
+		}
+		
+		var $td = $('td', $('#colorKeys'));
+		
+		for(var i = 0; i < 12; i++){
+			var $k = $($td.get(i));
+			$k.css({
+				background: colorMap[i+21].hex
+			});
+			
+			// $k.css('background-color', 'rgb(' + colorArray[i].r + ', '+colorArray[i].g+', '+ colorArray[i].b+ ')');
+		}
+		
+	}
+	
+	$(document).mousemove(function(event){
+		if(event.pageX < 400){
+			$options.show('fast');
+		}
+		else{
+			$options.hide('fast');
+		}
+		
+		mouseX = event.pageX - window.innerWidth/2;
+		mouseY = -(event.pageY- window.innerHeight/2);
+		
+		$('.keys').nanoScroller({ preventPageScrolling: true });
+	});
+	
+	var render = function(){
+	
+		delta = shapeSpeed*shapeClock.getDelta();
+		
+		requestAnimationFrame(render);
+		
+		group.verticesNeedUpdate = true;
+		
+		attributes.size.needsUpdate = true;
+		attributes.pcolor.needsUpdate = true;
+		if(followMouse){
+			emitterpos.x = mouseX;
+			emitterpos.y = mouseY;
+		}
+		if(animateRotation){
+			particleSystem.rotation.y += rotateY;
+			particleSystem.rotation.x += rotateX;
+		}
+		else{
+			particleSystem.rotation.y = rotateY*30;
+			particleSystem.rotation.x = rotateX*30;
+		}
+		
+		renderer.render(scene, camera);
+	}
+	
+	//document load
+	$(document).ready(function(){
+		init();
+		
+		render();
+	});
+	
+	
+	</script>
+</html>

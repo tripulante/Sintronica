@@ -1,0 +1,790 @@
+<!doctype html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+		<link href='../css/nanoscroller.css' rel='stylesheet' type="text/css" />
+		<link href='./css/main.css' rel='stylesheet' type="text/css" />
+			<!-- midi.js package -->
+		<script src="../js/Color/SpaceW3.js" type="text/javascript"></script>
+		<script src="../js/MIDI/AudioDetect.js" type="text/javascript"></script>
+		<script src="../js/MIDI/LoadPlugin.js" type="text/javascript"></script>
+		<script src="../js/MIDI/Plugin.js" type="text/javascript"></script>
+		<script src="../js/MIDI/Player.js" type="text/javascript"></script>
+		<script src="../js/MusicTheory/Synesthesia.js" type="text/javascript"></script>
+		<script src="../js/Widgets/Loader.js" type="text/javascript"></script>
+		<script src="../js/Window/Event.js" type="text/javascript"></script>
+		<script src="../js/Window/DOMLoader.XMLHttp.js" type="text/javascript"></script>
+		<script src="../js/Window/DOMLoader.script.js" type="text/javascript"></script>
+
+		<!-- jasmid package -->
+		<script src="../inc/jasmid/stream.js"></script>
+		<script src="../inc/jasmid/midifile.js"></script>
+		<script src="../inc/jasmid/replayer.js"></script>
+		<!-- extras -->
+		<script src="../inc/Base64.js" type="text/javascript"></script>
+		<script src="../inc/base64binary.js" type="text/javascript"></script>
+		<!-- jquery -->
+		<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+		<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+		<script src="../js/jquery.nanoscroller.min.js"></script>
+		<!--Three.js-->
+		
+		<script src="../js/Three.js"></script>
+		<script type='text/javascript' src="../js/easeljs-0.6.1.min.js"></script>
+		<script type="text/javascript" src="../js/easeljs/events/EventDispatcher.js"></script>
+		<script type='text/javascript' src="../js/Tween.js"></script>
+		<script type='text/javascript' src="../js/Ease.js"></script>
+		
+		<script src="./js/Playlist.js"></script>
+		<script src="./js/Options.js"></script>
+		
+		<title>Syntree</title>
+	</head>
+	<body>
+		<div id="test">
+			
+			<div id="container"></div>
+			
+			<div id="options">
+				<div id="player">
+					<input type='image' alt='previous' src='../images/backward_1.png' id='previousSong'/>
+					<input type='image' alt='play' src='../images/pause_1.png' id='playerControl'/>
+					<input type='image' alt='stop' src='../images/stop_1.png' id='playerStop'/>
+					<input type='image' alt='next' src='../images/forward_1.png' id='nextSong'/>
+					
+					<div id='progressbar-container'>
+						<span id="elapsed">00:00</span>
+						<div id='progressbar'></div>
+						<span id='songLength'>00:00</span>
+					</div>
+					<div id='songName'></div>
+					
+					<ul class="keys nano">
+						<div class='content'>
+							<ul id='playlist'></ul>
+						</div>
+					</ul>
+					
+				</div>
+				<div id="sphereoptions">
+					<h2>Some Options</h2>
+					<p>Synesthetic Map</p>
+					<select id="maps"></select>
+					<table id='colorKeys'>
+						<tr>
+							<td>C</td>
+							<td>C#/Db</td>
+							<td>D</td>
+							<td>Eb</td>
+							<td>E</td>
+							<td>F</td>
+						</tr>
+						<tr>
+							<td>F#</td>
+							<td>G</td>
+							<td>G#/Ab</td>
+							<td>A</td>
+							<td>Bb</td>
+							<td>B</td>
+						</tr>
+					</table>
+					
+					<select id='blending'></select>
+					
+					<form>
+						<ul>
+							<ul>
+								<input type='checkbox' id='noteToggle'/>
+									<label for='noteToggle'>Show Note Change</label>
+							</ul>
+							<ul>
+								<input type='checkbox' id='shadowcamera'/>
+									<label for='shadowcamera'>Toggle Shadow Camera</label>
+							</ul>
+							
+						</ul>
+					</form>
+					
+					<p>Rotation</p>
+					<p>Y:</p>
+					<div id="sliderY"></div>
+					<button id='reset'>Reset</button>
+					
+				</div>
+				
+			</div>
+			<div id="credits">
+				<h2>Syntree</h2>
+				<p>An experiment on synesthesia and Javascript using 
+					<a href="http://threejs.org" target="_blank">Three.js</a> and <a href="http://mudcu.be/midi-js" target="_blank">Midi.js</a> 
+					(and a little bit of <a href="http://www.createjs.com/#!/TweenJS" target="_blank">TweenJS</a>)</p>
+				<p>Also based on <a href="http://qiao.github.io/euphony/" target="_blank">Euphony</a></p>
+				<p>Created by <a>John Palma</a>.</p>
+				<p>Drag and drop your midi files if you want.</p>
+				
+				<a href="#" 
+				  onclick="
+					window.open(
+					  'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href), 
+					  'facebook-share-dialog', 
+					  'width=626,height=436'); 
+					return false;">
+					<img src="../images/fb.gif" alt="Share on Facebook" height="20" width="20">
+				</a>
+				<div class="fb-like" data-href="http://www.google.com" data-width="450" data-layout="button_count" data-show-faces="false" data-send="true"></div>
+				<a href="https://twitter.com/share" class="twitter-share-button" data-count="none">Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+			</div>
+		</div>
+		<div id="fb-root"></div>
+		<script>(function(d, s, id) {
+		  var js, fjs = d.getElementsByTagName(s)[0];
+		  if (d.getElementById(id)) return;
+		  js = d.createElement(s); js.id = id;
+		  js.src = "http://connect.facebook.net/fr_FR/all.js";
+		  fjs.parentNode.insertBefore(js, fjs);
+		}(document, 'script', 'facebook-jssdk'));</script>
+	</body>
+	
+	<script type="x-shader/x-vertex" id="vertexshader">
+
+			attribute float size;
+			attribute vec3 pcolor;
+
+			varying vec3 vColor;
+
+			void main() {
+
+				vColor = pcolor;
+
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+				gl_PointSize = size * ( 200.0 / length( mvPosition.xyz ) );
+
+				gl_Position = projectionMatrix * mvPosition;
+
+			}
+
+		</script>
+
+		<script type="x-shader/x-fragment" id="fragmentshader">
+			uniform vec3 color;
+			uniform sampler2D texture;
+
+			varying vec3 vColor;
+	
+			void main() {
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				
+				// if ( outColor.a < 0.5 ) discard;
+				
+				vec4 outColor = texture2D( texture, gl_PointCoord );
+				
+				// float fogFactor = smoothstep( 200.0, 600.0, depth );
+				// vec3 fogColor = vec3(0.0);
+				gl_FragColor = outColor*vec4(vColor, 1.0 );
+				
+				// gl_FragColor = mix(gl_FragColor, vec4(fogColor, gl_FragColor.w), fogFactor);
+			}
+
+		</script>
+
+	
+
+	<script type="text/javascript" defer>
+	//three.js variables
+	var materials = [];
+	var colorArray = [];
+	var colorState = 0;
+	var synApplied = false;
+	var key;
+	var camera, scene, renderer;
+	var map;
+	var systems = [];
+	var spacing = 500, separation = 250, cameraZ = 1500;
+	var maxNoteSize = 100, minNoteSize = 50;
+	var velX = 10, velY = 10;
+	var notes = 12;
+	var geometries = [];
+	//midi variables
+	var player;
+	
+	var WIDTH = 1000,
+		HEIGHT = 1000;
+
+	// set some camera attributes
+	var VIEW_ANGLE = 45,
+		ASPECT = window.innerWidth / window.innerHeight,
+		NEAR = 0.1,
+		FAR = 10000;
+	//rotation
+	var rotateX = 0, rotateY = 0;
+	var animateRotation = true;
+	
+	var light2;
+	
+	//jquery variables
+	var $options = $('#options');
+	var $maps = $('#maps');
+	var $wireframe = $('#wireframe');
+	var $blending = $('#blending');
+	var currentTrackIndex = 80;
+	var tweens = [];
+	var mouseX, mouseY;
+	var sprite;
+	var mouseDir = 0;
+	var light3;
+	
+	var playlist;
+	
+	var treeAngle = Math.random()*25 +5;
+	var treeScale = 0.7;
+	var treeTrunk = new THREE.Object3D();
+	var leafRotation = new Object();
+	
+	var leafTweens = [];
+	var leaves = [];
+	var leafMaterials = [];
+	var mainTex;
+	var colorTween = false;
+	var colorTweens = [];
+	var numTrees = 70;
+	var leafNoteChange = false;
+	
+	
+	function parseColor(c){
+			if(c.substr(0, 1) === '#'){
+				c = c.substr(1);
+			}
+			return parseInt('0x'+c);
+			
+		}
+	
+	
+	function initMidi(){
+	
+		MIDI.loader = new widgets.Loader;
+		MIDI.loadPlugin(function () {
+			
+			player = MIDI.Player;
+			player.timeWarp = 1; 
+	
+			currentTrackIndex = Math.floor(Math.random()*playlist.length);
+	
+			loadMidiFromPlaylist(currentTrackIndex);
+			
+			player.setAnimation(function(data, element){
+				$('#elapsed').text(formatClock(data.now));
+				$('#progressbar').slider('value', (data.now/data.end)*100);
+				
+	
+				
+				if(Math.floor(data.now-data.end) === 0)
+				{
+					colorTween = true;
+					for(var i = 0; i < leafMaterials.length; i++){
+						if(leafMaterials[i].color.getHex() !== 0xffffff){
+							createColorTween(leafMaterials[i].color, i);
+						}
+					}
+	
+					
+				}
+				
+			});
+			
+			player.addListener(function(data) {
+	
+				var pianoKey = data.note - MIDI.pianoKeyOffset;
+				if (data.message === 144) {
+						colorTween = false;
+						var d = colorArray[pianoKey%notes];
+						materials[pianoKey%12].color = d;
+						leafMaterials[pianoKey%12].color = d.clone();
+						
+						
+				} else {
+					materials[pianoKey%notes].color = new THREE.Color(0xffffff);
+					if(leafNoteChange)
+						leafMaterials[pianoKey%12].color = new THREE.Color(0xffffff);
+	
+				}
+				
+			});
+			
+			player.getNextSong = function(n){
+				loadMidiFromPlaylist(currentTrackIndex + n);
+			};
+			
+			MIDI.loader.stop();
+			$('#playlist').click(playlistClick);
+			$('#progressbar').slider('option', 'disabled', false);
+			$('#previousSong').click(function(){player.getNextSong(-1)});
+			$('#nextSong').click(function(){player.getNextSong(1)});
+			$('#playerControl').click(function(){playerPauseStop()});
+			$('#playerStop').click(function(){playerPauseStop(true)});
+			
+	
+		});
+	}
+	
+	function initGL(){
+		
+		renderer = new THREE.WebGLRenderer( {preserveDrawingBuffer: true});
+		renderer.sortObjects = false;
+		renderer.shadowMapEnabled = true;
+		camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
+										ASPECT,
+										NEAR,
+										FAR  );
+		scene = new THREE.Scene();
+		scene.fog = new THREE.FogExp2(0x000000);
+		
+		var $container = $('#container');
+		camera.position.z = cameraZ;
+
+		
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		$container.append(renderer.domElement);
+		
+		mainTex = THREE.ImageUtils.loadTexture('images/leaf.png');
+		
+		var obj3d = createFoliage();
+		
+		createBackground();
+		
+		obj3d.position.y = 50;
+		
+		//create trunk
+		
+		var treeGeom = new THREE.Geometry();
+		for(var i = 0; i < numTrees; i++){
+			
+			var tr = new THREE.Geometry();
+			var ls = new THREE.Object3D();
+			createTrunk(0, 0, 0, Math.random()*300+100, 90, Math.round(7*Math.random())+1, tr, ls, i);
+			var tree = new THREE.Mesh(tr, new THREE.MeshPhongMaterial({color: 0xffffff}));
+			var rot = (Math.random()*2+0.1)*i*Math.PI;
+			tree.rotation.y = rot;
+			ls.rotation.y = rot;
+			tree.position.y -= 500;
+			ls.position.y -= 500;
+			THREE.GeometryUtils.merge(treeGeom, tree);
+			treeTrunk.add(ls);
+		}
+		var ms = new THREE.Mesh(treeGeom, new THREE.MeshPhongMaterial({color: 0xffffff}));
+		ms.castShadow = true;
+		treeTrunk.add(ms);
+		
+		treeTrunk.add(obj3d);
+		
+		createLeafTweens();
+
+		scene.add(treeTrunk);
+		
+		scene.add(camera);
+
+		// Lights
+		var pointLight = new THREE.PointLight( 0xFFFFFF );
+		pointLight.position.x = 0;
+		pointLight.position.y = 0;
+		pointLight.position.z = 0;
+		// pointLight.castShadow = true;
+		scene.add(pointLight);
+		
+		light2 = new THREE.SpotLight(Math.random()*0xffffff);
+		light2.position.x = 0;
+		light2.position.y = 0;
+		light2.position.z = 200;
+		// light2.castShadow = true;
+		scene.add(light2);
+		
+		light3 = new THREE.DirectionalLight(Math.random()*0xffffff);
+		light3.position.x = -1;
+		light3.position.y = 1.5;
+		light3.position.z = 0;
+		light3.position.multiplyScalar(200);
+		// light3.onlyShadow = true;
+		light3.castShadow = true;
+		light3.shadowMapWidth = 2048;
+		light3.shadowMapHeight = 2048;
+		// light3.shadowCameraVisible = true;
+		
+		
+		var d = 300;
+
+		light3.shadowCameraLeft = -d;
+		light3.shadowCameraRight = d;
+		light3.shadowCameraTop = d;
+		light3.shadowCameraBottom = -d;
+
+		light3.shadowCameraFar = camera.z;
+		light3.shadowBias = -0.0001;
+		light3.shadowDarkness = 0.35;
+		
+		scene.add(light3);
+		
+		var al = new THREE.AmbientLight(0x404040);
+		scene.add(al);
+		
+	}
+	
+	function createFoliage(){
+		
+		var obj3d = new THREE.Object3D();
+		
+		for(var i = 0; i < notes; i++){
+			
+			var g = new THREE.SphereGeometry(200, 10, 6, 0, Math.PI*2, 0, Math.PI/2);
+			var g2 = new THREE.CircleGeometry(Math.random()*100, 10);
+			var g3 = new THREE.CircleGeometry(Math.random()*50, 10);
+			var g4 = new THREE.CircleGeometry(Math.random()*50+2, 10);
+			
+			THREE.GeometryUtils.merge(g, g2);
+			
+			THREE.GeometryUtils.merge(g, g3);
+			THREE.GeometryUtils.merge(g, g4);
+			
+			geometries.push(g);
+			materials[i] = new THREE.ParticleBasicMaterial(
+				{
+					color: 0xffffff,
+					blending: THREE.AdditiveBlending,
+					map: mainTex, 
+					transparent: true,
+					depthTest: false,
+					opacity: 0.7,
+					sizeAttenuation: false,
+					// fog: false,
+					// blendEquation: THREE.ReverseSubtractEquation,
+					size: minNoteSize -10
+					// vertexColors: true
+				})
+			;
+			
+			// materials[i] = mat;
+			
+			systems[i] = {data: new THREE.ParticleSystem(g, materials[i]), 
+				velocity: new THREE.Vector3(Math.random()*velX, Math.random()*velY, 0)};
+			systems[i].data.position.x = 200*Math.cos(i*30*180/Math.PI);
+			systems[i].data.position.y = 150*Math.sin(i*30*180/Math.PI);
+			systems[i].data.position.z = Math.random()*250-100;
+			systems[i].data.castShadow = true;
+			
+			
+			
+			var obj = new createjs.Point();
+			obj.x = systems[i].data.position.x;
+			obj.y = systems[i].data.position.y;
+			
+			var tw = createjs.Tween.get(obj);
+				// .call(function(){
+					// updateParticles(i, obj);
+				// });
+			
+			systems[i].data.sortParticles = true;
+
+			tweens.push({tween: tw, target: obj, startx: systems[i].data.position.x, starty: systems[i].data.position.y});
+			
+			systems[i].data.visible = false;
+			
+			obj3d.add(systems[i].data);
+			
+			leafMaterials.push(new THREE.MeshBasicMaterial(
+				{
+					map: mainTex, 
+					transparent: true, 
+					depthTest: false, 
+					side: THREE.DoubleSide, 
+					blending: THREE.AdditiveBlending
+					// specular: 0xffffff
+					// shininess: 100
+					}));
+			
+		}
+		
+		
+		
+		return obj3d;
+	}
+	
+	function createLeafTweens(){
+		
+		for(var i = 0; i < notes; i++){
+			var rotObj = new Object();
+			rotObj.value = 0;
+			
+			var tw = createjs.Tween.get(rotObj, {loop: true})
+				.to({value: -60*Math.PI/180}, (Math.random()+0.01)*3500, createjs.Ease.quadIn)
+				.to({value: 0}, (Math.random()+0.1)*4000, createjs.Ease.bounceIn); 
+				
+			leafTweens.push({target: rotObj, tween: tw});
+		}
+		
+		for(var i = 0; i < leafMaterials.length; i++){
+			var colorObj = new Object();
+			colorObj.r = colorObj.b = colorObj.g = 0.0;
+			
+			// var tw = createjs.Tween.get(colorObj)
+				// .to({r: 1.0, g: 1.0, b: 1.0}, (Math.random()+0.01)*1500, createjs.Ease.quadIn);
+			
+			colorTweens.push({target: colorObj, tween: tw});
+		}
+	}
+	
+	function createColorTween(color, i){
+		
+		var target = colorTweens[i];
+		
+		target.r = color.r;
+		target.g = color.g;
+		target.b = color.b;
+		
+		createjs.Tween.get(target, {override:true})
+			.to({r: 1.0, g: 1.0, b: 1.0}, 4000, createjs.Ease.quadIn);
+		
+	}
+	
+	function createBackground(){
+		var bg = new THREE.Mesh(new THREE.PlaneGeometry(10000, 10000), new THREE.MeshPhongMaterial({
+			color: Math.random()*0xffffff
+			// side: THREE.BackSide
+			// wireframe: false
+		}));
+		
+		bg.position.y -= 500;
+		bg.rotation.x = -Math.PI/2;
+		bg.receiveShadow = true;
+		
+		scene.add(bg);
+	}
+	
+	function createTrunk(x, y, z, length, angle, depth, trunk, ls, materialIndex){
+		
+		// draw trunk
+		var tg = new THREE.Geometry();
+		var endX = x+(length*Math.cos(angle*Math.PI/180));
+		var endY = y+(length*Math.sin(angle*Math.PI/180));
+		
+		
+		tg.vertices.push(new THREE.Vector3(x, y, z));
+		tg.vertices.push(new THREE.Vector3(endX, endY, z));
+		
+		var ln = new THREE.Line(tg, new THREE.LineBasicMaterial({color: 0xffffff, linewidth: 50}));
+		ln.castShadow = true;
+		
+		if(length > 0){
+			var cg = new THREE.CylinderGeometry(depth === 0 ? 0.5 : depth, depth === 0 ? 0.5 : depth, length, 5, 5);
+			var cm = new THREE.Mesh(cg, new THREE.MeshPhongMaterial({color: 0xffffff}));
+			cm.position.x = x+(length/2)*Math.cos(angle*Math.PI/180);
+			cm.position.y = y+(length/2)*Math.sin(angle*Math.PI/180);
+			cm.rotation.z = (angle+90)*Math.PI/180 ;
+			
+			cm.castShadow = true;
+			THREE.GeometryUtils.merge(trunk, cm);
+			// trunk.add(cm);
+		}
+		
+		
+		
+		if(depth > 0){
+			//at end, split angle
+			var newAngle = angle - treeAngle;
+			var newLength = length*treeScale;
+			//repeat for enough levels
+			createTrunk(endX, endY, z, (Math.random()+0.1)*newLength , Math.random()*newAngle, depth-1, trunk, ls, materialIndex);
+			createTrunk(endX, endY, z, newLength, (angle+treeAngle), depth-1, trunk, ls, materialIndex);
+		}
+		else{
+			
+			
+			var pg = new THREE.PlaneGeometry(minNoteSize, minNoteSize);
+			var val = Math.floor(Math.random()*(notes-1));
+			// console.log(materialIndex%notes);
+			var ms = new THREE.Mesh(pg, leafMaterials[materialIndex%notes]);
+			ms.position.x = endX;
+			ms.position.y = endY;
+			ms.position.z = z;
+			ms.castShadow = true;
+			// leaf = ms;
+			// THREE.GeometryUtils.merge(ls, ms);
+			ls.add(ms);
+			leaves.push(ms);
+			return;
+		}
+	}
+	
+	function updateParticles(i, obj){
+		systems[i].data.position.x = obj.x;
+		systems[i].data.position.y = obj.y;
+		systems[i].data.position.z = obj.z;
+	}
+	
+	function init(){
+		// set the scene size
+		
+
+		initOptions();
+		
+		initGL();
+		
+		//initialize color map
+		createColorMap();
+		
+		//events
+		document.addEventListener('click', onClick, false);
+		window.addEventListener('resize', onWindowResize, false);
+		window.addEventListener("dragenter", dragEnter, false);
+		window.addEventListener("dragexit", dragExit, false);
+		window.addEventListener("dragover", dragOver, false);
+		window.addEventListener("drop", drop, false);
+		document.getElementById('container').addEventListener('mousewheel', onMouseWheel, false);
+		//midi init
+		initMidi();
+		
+		
+	}
+	
+	function onWindowResize(){
+		
+
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+
+		renderer.setSize( window.innerWidth, window.innerHeight );
+	}
+	function onMouseWheel(event){
+		// console.log(event);
+		camera.position.z  += event.wheelDelta > 0 ? -100 : 100;
+	}
+	
+	function createColorMap(mapName){
+	
+		colorArray.length = 0;
+		
+		var colorMap = typeof mapName !== 'undefined' ? MusicTheory.Synesthesia.map(mapName) : MusicTheory.Synesthesia.map();
+		
+		
+		for(var i = 0; i < 12; i++){
+			// var note = MIDI.noteToKey[i+21];
+			map = colorMap[i+21];
+			if(map){
+				color = new THREE.Color(parseColor(map.hex));
+				synApplied = true;
+			}
+			else{
+				color = new THREE.Color( 0xffffff );	
+				color.setRGB( Math.random(), Math.random(), Math.random());
+			}
+			
+			colorArray.push(color);
+		}
+		
+		var $td = $('td', $('#colorKeys'));
+		
+		for(var i = 0; i < 12; i++){
+			var $k = $($td.get(i));
+			$k.css({
+				background: colorMap[i+21].hex
+			});
+		}
+	}
+	
+	$(document).mousemove(function(event){
+		if(event.pageX < 400){
+			
+			$options.show('fast');
+		}
+		else{
+			$options.hide('fast');
+		}
+		
+		var dir = event.pageX > mouseDir;
+		
+		mouseDir = event.pageX;
+		
+		mouseX = event.pageX - window.innerWidth/2;
+		mouseY = -(event.pageY- window.innerHeight/2);
+		
+		
+		for(var i = 0; i < tweens.length; i++){
+			var obj = tweens[i].target;
+			var tw = tweens[i].tween;
+			var oX = tweens[i].startx;
+			var oY = tweens[i].starty;
+			createjs.Tween.get(obj,{override:true, loop: true}).to(
+				{
+					x: dir ? oX + Math.random()*5: oX -Math.random()*5,
+					y: oY + Math.random()*5
+				}, (0.5+i*0.04)*1500, createjs.Ease.quadOut)
+			.to( 
+				{
+					x:oX,
+					y:oY
+				}, (0.5+i*0.04)*1500, createjs.Ease.quadIn)
+			;
+		}
+		
+	});
+	
+	var render = function(){
+		requestAnimationFrame(render);
+		
+		for(var i = 0; i < systems.length; i++){
+			systems[i].data.rotation.y += 0.01;
+			// systems[i].data.rotation.x += 0.01;
+		}
+		
+		treeTrunk.rotation.y += rotateY;
+		treeTrunk.rotation.x += rotateX;
+		
+		
+		for ( i = 0; i < materials.length; i ++ ) {
+			h = ( 360 * ( materials[i].color + (Date.now()*0.00005) ) % 360 ) / 360;
+		}
+		
+		for(var i = 0; i < tweens.length; i++){
+			var obj = tweens[i].target;
+			systems[i].data.position.x = obj.x;
+			systems[i].data.position.y = obj.y;
+		}
+		
+		for(var i = 0; i < leaves.length; i++){
+			var tw = leafTweens[i%notes];
+			var l = leaves[i];
+			var obj = tw.target;
+			
+			l.rotation.z = obj.value;
+			
+		}
+		
+		// console.log(colorTween);
+		
+		if(colorTween){
+			for(var i = 0; i < colorTweens.length; i++){
+				if(leafMaterials[i].color.getHex() !== 0xffffff){
+					var obj = colorTweens[i];
+					leafMaterials[i].color.r = obj.r;
+					leafMaterials[i].color.g = obj.g;
+					leafMaterials[i].color.b = obj.b;
+				}
+			}
+		}
+		
+	
+		
+		light3.rotation.y += 0.01;
+		
+		renderer.render(scene, camera);
+	}
+	
+	$(document).ready(function(){
+		init();
+		
+		render();
+	});
+	
+	
+	</script>
+</html>
