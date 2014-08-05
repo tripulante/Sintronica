@@ -184,12 +184,12 @@ if (window.AudioContext || window.webkitAudioContext) (function () {
 		source.buffer = audioBuffers[instrument + "" + note];
 		source.connect(ctx.destination);
 		///
-		var gainNode = ctx.createGainNode();
+		var gainNode = ctx.createGain(); // ctx.createGainNode();
 		var value = (velocity / 127) * (masterVolume / 127) * 2 - 1;
 		gainNode.connect(ctx.destination);
 		gainNode.gain.value = Math.max(-1, value);
 		source.connect(gainNode);
-		source.noteOn(delay || 0);
+		source.start(delay || 0);
 		return source;
 	};
 
@@ -201,9 +201,9 @@ if (window.AudioContext || window.webkitAudioContext) (function () {
 		// @Miranet: "the values of 0.2 and 0.3 could ofcourse be used as 
 		// a 'release' parameter for ADSR like time settings."
 		// add { "metadata": { release: 0.3 } } to soundfont files
-		source.gain.linearRampToValueAtTime(1, delay);
-		source.gain.linearRampToValueAtTime(0, delay + 0.2);
-		source.noteOff(delay + 0.3);
+		source.playbackRate.linearRampToValueAtTime(1, delay);
+		//source.playbackRate.linearRampToValueAtTime(0, delay + 0.2);
+		source.stop(delay + 0.3);
 		return source;
 	};
 
